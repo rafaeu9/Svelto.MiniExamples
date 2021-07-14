@@ -4,7 +4,7 @@ namespace Svelto.ECS.Example.Survive.HUD
 {
     public interface IDamageHUDComponent
     {
-        float speed      { get; }
+        float speed { get; }
         Color flashColor { get; }
         Color imageColor { set; get; }
     }
@@ -17,5 +17,10 @@ namespace Svelto.ECS.Example.Survive.HUD
     public interface IScoreComponent
     {
         int score { set; get; }
+    }
+
+    public interface ICountComponent
+    {
+        int count { set; get; }
     }
 }

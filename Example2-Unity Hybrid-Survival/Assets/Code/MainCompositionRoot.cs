@@ -32,7 +32,7 @@ using UnityEngine;
 //publisher/consumer can have some drawbacks, so with Svelto.ECS 3.0 filters can be used instead. This doesn't
 //mean that filters are better than the publisher/consumer model. Each tool must be used wisely.
 
-//Main is the Application Composition Root. A Composition Root is the where all the dependencies are 
+//Main is the Application Composition Root. A Composition Root is the where all the dependencies are
 //created and injected (I talk a lot about this in my articles) A composition root belongs to the Context, but
 //a context can have more than a composition root. For example a factory is a composition root.
 //Furthermore an application can have more than a context/composition root but this is more advanced and not part of this demo
@@ -45,13 +45,21 @@ namespace Svelto.ECS.Example.Survive
     /// </summary>
     public class MainCompositionRoot : ICompositionRoot
     {
-        EnginesRoot _enginesRoot;
+        private EnginesRoot _enginesRoot;
 
-        public MainCompositionRoot() { QualitySettings.vSyncCount = 1; }
+        public MainCompositionRoot()
+        {
+            QualitySettings.vSyncCount = 1;
+        }
 
-        public void OnContextCreated<T>(T contextHolder) { }
+        public void OnContextCreated<T>(T contextHolder)
+        {
+        }
 
-        public void OnContextInitialized<T>(T contextHolder) { CompositionRoot(contextHolder as UnityContext); }
+        public void OnContextInitialized<T>(T contextHolder)
+        {
+            CompositionRoot(contextHolder as UnityContext);
+        }
 
         public void OnContextDestroyed(bool hasBeenActivated)
         {
@@ -79,7 +87,7 @@ namespace Svelto.ECS.Example.Survive
         ///     Gives a way to formalise your Entity, it also defines the components that must
         ///     be generated once the Entity is built
         /// </summary>
-        void CompositionRoot(UnityContext contextHolder)
+        private void CompositionRoot(UnityContext contextHolder)
         {
             //the UnitySumbmissionEntityViewScheduler is the scheduler that is used by the EnginesRoot to know
             //when to submit the entities. Custom ones can be created for special cases.
@@ -92,26 +100,26 @@ namespace Svelto.ECS.Example.Survive
             var entityFactory = _enginesRoot.GenerateEntityFactory();
             //The entity functions is a set of utility operations on Entities, including removing an entity. I couldn't
             //find a better name so far.
-            var entityFunctions             = _enginesRoot.GenerateEntityFunctions();
+            var entityFunctions = _enginesRoot.GenerateEntityFunctions();
             var entityStreamConsumerFactory = _enginesRoot.GenerateConsumerFactory();
 
             //wrap non testable unity static classes, so that can be mocked if needed (or implementation can change in general, without changing the interface).
             IRayCaster rayCaster = new RayCaster();
-            ITime      time      = new Time();
+            ITime time = new Time();
             //GameObjectFactory allows to create GameObjects without using the Static method GameObject.Instantiate.
             //While it seems a complication it's important to keep the engines testable and not coupled with hard
             //dependencies
             var gameObjectFactory = new GameObjectFactory();
 
             //Player related engines. ALL the dependencies must be solved at this point through constructor injection.
-            var playerShootingEngine       = new PlayerGunShootingEngine(rayCaster, time);
-            var playerMovementEngine       = new PlayerMovementEngine(rayCaster);
-            var playerAnimationEngine      = new PlayerAnimationEngine();
-            var playerDeathEngine          = new PlayerDeathEngine(entityFunctions, entityStreamConsumerFactory);
-            var playerInputEngine          = new PlayerInputEngine();
+            var playerShootingEngine = new PlayerGunShootingEngine(rayCaster, time);
+            var playerMovementEngine = new PlayerMovementEngine(rayCaster);
+            var playerAnimationEngine = new PlayerAnimationEngine();
+            var playerDeathEngine = new PlayerDeathEngine(entityFunctions, entityStreamConsumerFactory);
+            var playerInputEngine = new PlayerInputEngine();
             var playerGunShootingFXsEngine = new PlayerGunShootingFXsEngine(entityStreamConsumerFactory);
             //Spawner engines are factories engines that can build entities
-            var playerSpawnerEngine      = new PlayerSpawnerEngine(gameObjectFactory, entityFactory);
+            var playerSpawnerEngine = new PlayerSpawnerEngine(gameObjectFactory, entityFactory);
             var restartGameOnPlayerDeath = new RestartGameOnPlayerDeathEngine();
 
             //Player engines
@@ -128,27 +136,29 @@ namespace Svelto.ECS.Example.Survive
             var enemyFactory = new EnemyFactory(gameObjectFactory, entityFactory);
             //Enemy related engines
             var enemyAnimationEngine = new EnemyChangeAnimationOnPlayerDeathEngine();
-            var enemyDamageFX        = new EnemySpawnEffectOnDamage(entityStreamConsumerFactory);
-            var enemyAttackEngine    = new EnemyAttackEngine(time);
-            var enemyMovementEngine  = new EnemyMovementEngine();
+            var enemyDamageFX = new EnemySpawnEffectOnDamage(entityStreamConsumerFactory);
+            var enemyAttackEngine = new EnemyAttackEngine(time);
+            var enemyMovementEngine = new EnemyMovementEngine();
             //Spawner engines are factories engines that can build entities
-            var enemySpawnerEngine = new EnemySpawnerEngine(enemyFactory, entityFunctions);
+            //var enemySpawnerEngine = new EnemySpawnerEngine(enemyFactory, entityFunctions);
+            var enemyWaveEngine = new EnemyWaveEngine(enemyFactory, entityFunctions);
             var enemyDeathEngine = new EnemyDeathEngine(entityFunctions, entityStreamConsumerFactory, time
                                                       , new WaitForSubmissionEnumerator(
                                                             unityEntitySubmissionScheduler));
 
             //enemy engines
-            _enginesRoot.AddEngine(enemySpawnerEngine);
+            //_enginesRoot.AddEngine(enemySpawnerEngine);
+            _enginesRoot.AddEngine(enemyWaveEngine);
             _enginesRoot.AddEngine(enemyAttackEngine);
             _enginesRoot.AddEngine(enemyMovementEngine);
             _enginesRoot.AddEngine(enemyAnimationEngine);
             _enginesRoot.AddEngine(enemyDeathEngine);
             _enginesRoot.AddEngine(enemyDamageFX);
-            
+
             //abstract engines
-            var applyDamageEngine        = new ApplyDamageToDamageableEntitiesEngine(entityStreamConsumerFactory);
+            var applyDamageEngine = new ApplyDamageToDamageableEntitiesEngine(entityStreamConsumerFactory);
             var cameraFollowTargetEngine = new CameraFollowingTargetEngine(time);
-            var deathEngine              = new DispatchKilledEntitiesEngine();
+            var deathEngine = new DispatchKilledEntitiesEngine();
 
             //abstract engines (don't need to know the entity type)
             _enginesRoot.AddEngine(applyDamageEngine);
@@ -156,14 +166,16 @@ namespace Svelto.ECS.Example.Survive
             _enginesRoot.AddEngine(cameraFollowTargetEngine);
 
             //hud and sound engines
-            var hudEngine         = new HUDEngine(entityStreamConsumerFactory);
+            var hudEngine = new HUDEngine(entityStreamConsumerFactory);
             var damageSoundEngine = new DamageSoundEngine(entityStreamConsumerFactory);
-            var scoreEngine       = new UpdateScoreEngine(entityStreamConsumerFactory);
+            var scoreEngine = new UpdateScoreEngine(entityStreamConsumerFactory);
+            var countEngine = new UpdateEnemyCountEngine();
 
             //other engines
             _enginesRoot.AddEngine(damageSoundEngine);
             _enginesRoot.AddEngine(hudEngine);
             _enginesRoot.AddEngine(scoreEngine);
+            _enginesRoot.AddEngine(countEngine);
 
             var unsortedEngines = new SurvivalUnsortedEnginesGroup(new FasterList<IStepEngine>(
                 new IStepEngine[]
@@ -173,14 +185,15 @@ namespace Svelto.ECS.Example.Survive
                     playerGunShootingFXsEngine,
                     playerSpawnerEngine,
                     playerAnimationEngine,
-                    enemySpawnerEngine,
+                    enemyWaveEngine,
+                    //enemySpawnerEngine,
                     enemyMovementEngine,
                     cameraFollowTargetEngine,
                     hudEngine,
                     restartGameOnPlayerDeath
                 }
             ));
-            
+
             var unsortedDamageEngines = new DamageUnsortedEngines(new FasterList<IStepEngine>(
                 new IStepEngine[]
                 {
@@ -198,10 +211,11 @@ namespace Svelto.ECS.Example.Survive
                , playerShootingEngine
                , enemyDamageFX
                , enemyAttackEngine
-               , unsortedDamageEngines            
+               , unsortedDamageEngines
                , playerDeathEngine
                , enemyDeathEngine
                , scoreEngine
+               , countEngine
             })));
 
             BuildGUIEntitiesFromScene(contextHolder, entityFactory);
@@ -219,7 +233,7 @@ namespace Svelto.ECS.Example.Survive
         /// otherwise a widget-like design should be adopted.
         /// </summary>
         /// <param name="contextHolder"></param>
-        void BuildGUIEntitiesFromScene(UnityContext contextHolder, IEntityFactory entityFactory)
+        private void BuildGUIEntitiesFromScene(UnityContext contextHolder, IEntityFactory entityFactory)
         {
             SveltoGUIHelper.Create<HudEntityDescriptorHolder>(ECSGroups.HUD, contextHolder.transform, entityFactory
                                                             , true);
