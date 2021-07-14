@@ -43,7 +43,9 @@ namespace Svelto.ECS.Example.Survive.Enemies
             IEnumerator<JSonEnemySpawnData[]> enemiestoSpawnJsons = ReadEnemySpawningDataServiceRequest();
             IEnumerator<JSonEnemyAttackData[]> enemyAttackDataJsons = ReadEnemyAttackDataServiceRequest();
 
-            WaveData currentWave = new WaveData();
+            WaveComponent currentWave;
+            currentWave.WaveCount = 0;
+            currentWave.EnemysCount = 0;
 
             while (enemiestoSpawnJsons.MoveNext())
                 yield return null;
@@ -53,24 +55,23 @@ namespace Svelto.ECS.Example.Survive.Enemies
             var enemiestoSpawn = enemiestoSpawnJsons.Current;
             var enemyAttackData = enemyAttackDataJsons.Current;
 
-            var spawningTimes = new float[enemiestoSpawn.Length];
-
-            for (var i = enemiestoSpawn.Length - 1; i >= 0 && _numberOfEnemyToSpawn > 0; --i)
-                spawningTimes[i] = enemiestoSpawn[i].enemySpawnData.spawnTime;
+            //var spawningTimes = new float[enemiestoSpawn.Length];
+            //for (var i = enemiestoSpawn.Length - 1; i >= 0 && _numberOfEnemyToSpawn > 0; --i)
+            //    spawningTimes[i] = enemiestoSpawn[i].enemySpawnData.spawnTime;
 
             while (true)
             {
                 //Wait until next wave
-                while (_numberOfEnemyToSpawn > 0)
+                while (currentWave.EnemysCount > 0)
                     yield return null;
 
-                if (_numberOfEnemyToSpawn <= 0)
+                if (currentWave.EnemysCount <= 0)
                 {
-                    currentWave.WaveNumber++;
-                    _numberOfEnemyToSpawn = currentWave.WaveNumber;
+                    currentWave.WaveCount++;
+                    currentWave.EnemysCount = currentWave.WaveCount;
 
                     //Create big enemy
-                    if (currentWave.WaveNumber % 3 == 0)
+                    if (currentWave.WaveCount % 3 == 0)
                     {
                         var spawnData = enemiestoSpawn[2];
 
@@ -86,7 +87,7 @@ namespace Svelto.ECS.Example.Survive.Enemies
                             yield return null;
                     }
 
-                    for (var i = 0; _numberOfEnemyToSpawn > i; ++i)
+                    for (var i = 0; currentWave.EnemysCount > i; ++i)
                     {
                         var EnemyAttackComponent = new EnemyAttackComponent
                         {

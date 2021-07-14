@@ -25,7 +25,7 @@ namespace Svelto.ECS.Example.Survive.HUD
 
         private IEnumerator ListenForEnemyDeath()
         {
-            //var consumer = _consumerFactory.GenerateConsumer<DeathComponent>("ScoreEngine", 1);
+            var consumer = _consumerFactory.GenerateConsumer<DeathComponent>("CountEngine", 1);
 
             while (entitiesDB.HasAny<HUDEntityViewComponent>(ECSGroups.GUICanvas) == false)
                 yield return null;
@@ -36,23 +36,26 @@ namespace Svelto.ECS.Example.Survive.HUD
             {
                 //hudEntityView.countComponent.count =
 
-                //while (consumer.TryDequeue(out _, out var egid))
-                //{
-                //    if (egid.groupID.FoundIn(AliveEnemies.Groups))
-                //    {
-                //        hudEntityView.countComponent.count = entitiesDB.QueryEntitiesAndIndex<ScoreValueComponent>(egid, out var index);
+                while (consumer.TryDequeue(out _, out var egid))
+                {
+                    if (egid.groupID.FoundIn(AliveEnemies.Groups))
+                    {
+                        //entitiesDB.QueryEntitiesAndIndex<EnemyCount>(egid, out var index);
 
-                //        //hudEntityView.countComponent.count += playerTargets[index].scoreValue;
-                //    }
-                //}
+                        //hudEntityView.countComponent.count += playerTargets[index].scoreValue;
+                    }
+                }
 
                 yield return null;
             }
         }
 
-        //public UpdateEnemyCountEngine(IEntityStreamConsumerFactory consumerFactory) { _consumerFactory = consumerFactory; }
+        public UpdateEnemyCountEngine(IEntityStreamConsumerFactory consumerFactory)
+        {
+            _consumerFactory = consumerFactory;
+        }
 
-        //readonly IEntityStreamConsumerFactory _consumerFactory;
+        private readonly IEntityStreamConsumerFactory _consumerFactory;
         private IEnumerator _listenForEnemyDeath;
     }
 }

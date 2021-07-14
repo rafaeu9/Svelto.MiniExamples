@@ -113,7 +113,6 @@
     <Compile Include="Assets\Code\ECS\Engines\TickEnginesGroup.cs" />
     <Compile Include="Assets\Code\DBC.cs" />
     <Compile Include="Assets\Code\ECS\EntityViewComponents\EnemyTargetEntityViewComponent.cs" />
-    <Compile Include="Assets\Code\Others\DataSources\WaveData.cs" />
     <Compile Include="Assets\Code\Factories\EnemyFactory.cs" />
     <Compile Include="Assets\Code\Others\DataSources\SpawningData.cs" />
     <Compile Include="Assets\Code\ECS\ECSGroups.cs" />
@@ -150,6 +149,7 @@
     <Compile Include="Assets\Code\ECS\EntityViewComponents\Implementors\GUI\EnemyCountManager.cs" />
     <Compile Include="Assets\Code\ECS\Engines\OtherEngines\UpdateEnemyCountEngine.cs" />
     <Compile Include="Assets\Code\Mario\EnemyCount.cs" />
+    <Compile Include="Assets\Code\ECS\EntityComponents\WaveComponent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Fonts\LuckiestGuy\LICENSE.txt" />
